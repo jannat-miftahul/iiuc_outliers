@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>QueueStorm Investigator</title>
+    <title>FinGuard Copilot</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -13,7 +13,7 @@
           <header>
             <div>
               <p class="eyebrow">SupportOps Copilot</p>
-              <h1>QueueStorm Investigator</h1>
+              <h1>FinGuard Copilot</h1>
             </div>
             <button id="sampleBtn" type="button">Load sample</button>
           </header>
@@ -50,10 +50,23 @@
               <dd id="review">-</dd>
             </div>
           </dl>
-          <pre id="output">{}</pre>
+          <div id="textualResults" style="display: none;">
+            <div class="card summary-card">
+              <dt>Agent Summary</dt>
+              <dd id="agentSummary">-</dd>
+            </div>
+            <div class="card action-card">
+              <dt>Recommended Next Action</dt>
+              <dd id="nextAction">-</dd>
+            </div>
+            <div class="card reply-card">
+              <dt>Customer Reply</dt>
+              <dd id="customerReply">-</dd>
+            </div>
+          </div>
         </div>
       </section>
     </main>
-    <script src="/app.js"></script>
+    <script type="module" src="/app.js"></script>
   </body>
 </html>

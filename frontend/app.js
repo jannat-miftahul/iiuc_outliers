@@ -2,7 +2,10 @@ const input = document.querySelector("#ticketInput");
 const analyzeBtn = document.querySelector("#analyzeBtn");
 const sampleBtn = document.querySelector("#sampleBtn");
 const statusEl = document.querySelector("#status");
-const output = document.querySelector("#output");
+const textualResults = document.querySelector("#textualResults");
+const agentSummary = document.querySelector("#agentSummary");
+const nextAction = document.querySelector("#nextAction");
+const customerReply = document.querySelector("#customerReply");
 const caseType = document.querySelector("#caseType");
 const severity = document.querySelector("#severity");
 const evidence = document.querySelector("#evidence");
@@ -42,7 +45,10 @@ function loadSample() {
 }
 
 function renderResult(data) {
-  output.textContent = JSON.stringify(data, null, 2);
+  agentSummary.textContent = data.agent_summary || "-";
+  nextAction.textContent = data.recommended_next_action || "-";
+  customerReply.textContent = data.customer_reply || "-";
+  textualResults.style.display = "block";
   caseType.textContent = (data.case_type || "Unknown").replaceAll("_", " ");
   severity.textContent = data.severity || "-";
   severity.classList.toggle("critical", data.severity === "critical");
@@ -66,7 +72,7 @@ async function analyzeTicket() {
     statusEl.textContent = response.ok ? "Done" : `Error ${response.status}`;
   } catch (error) {
     statusEl.textContent = "Invalid JSON or request failed";
-    output.textContent = JSON.stringify({ error: error.message }, null, 2);
+    textualResults.style.display = "none";
   }
 }
 
