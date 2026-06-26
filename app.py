@@ -1,5 +1,7 @@
 import logging
 from flask import Flask, jsonify, request, send_from_directory
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from analyzer import analyze_ticket, validate_payload
 
@@ -8,6 +10,13 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 app = Flask(__name__, static_folder="frontend", static_url_path="")
 
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+)
+
 
 @app.get("/health")
 def health():
@@ -15,6 +24,7 @@ def health():
 
 
 @app.post("/analyze-ticket")
+@limiter.limit("30 per minute")
 def analyze():
     payload = request.get_json(silent=True)
     error, status_code = validate_payload(payload)

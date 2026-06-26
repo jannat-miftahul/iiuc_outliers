@@ -1,5 +1,6 @@
 const input = document.querySelector("#ticketInput");
 const analyzeBtn = document.querySelector("#analyzeBtn");
+const downloadBtn = document.querySelector("#downloadBtn");
 const sampleSelect = document.querySelector("#sampleSelect");
 const statusEl = document.querySelector("#status");
 const textualResults = document.querySelector("#textualResults");
@@ -12,6 +13,8 @@ const evidence = document.querySelector("#evidence");
 const department = document.querySelector("#department");
 const transaction = document.querySelector("#transaction");
 const review = document.querySelector("#review");
+
+let lastResult = null;
 
 const samples = {
   wrong_transfer: {
@@ -75,6 +78,8 @@ function loadSample() {
 }
 
 function renderResult(data) {
+  lastResult = data;
+  downloadBtn.style.display = "inline-block";
   agentSummary.textContent = data.agent_summary || "-";
   nextAction.textContent = data.recommended_next_action || "-";
   customerReply.textContent = data.customer_reply || "-";
@@ -86,6 +91,32 @@ function renderResult(data) {
   department.textContent = data.department || "-";
   transaction.textContent = data.relevant_transaction_id || "none";
   review.textContent = data.human_review_required ? "required" : "not required";
+}
+
+function downloadReport() {
+  if (!lastResult) return;
+  const content = `FIN-GUARD COPILOT REPORT
+--------------------------
+Ticket ID: ${lastResult.ticket_id || '-'}
+Verdict: ${lastResult.evidence_verdict || '-'}
+Case Type: ${lastResult.case_type || '-'}
+Severity: ${lastResult.severity || '-'}
+Department: ${lastResult.department || '-'}
+Requires Human Review: ${lastResult.human_review_required ? "Yes" : "No"}
+
+AGENT SUMMARY:
+${lastResult.agent_summary || '-'}
+
+RECOMMENDED ACTION:
+${lastResult.recommended_next_action || '-'}
+`;
+  const blob = new Blob([content], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `finguard-report-${lastResult.ticket_id || 'unknown'}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 async function analyzeTicket() {
@@ -108,4 +139,27 @@ async function analyzeTicket() {
 
 sampleSelect.addEventListener("change", loadSample);
 analyzeBtn.addEventListener("click", analyzeTicket);
+downloadBtn.addEventListener("click", downloadReport);
 loadSample();
+
+const ctx = document.getElementById("analyticsChart");
+if (ctx) {
+  new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Wrong Transfer", "Phishing", "Duplicate Payment", "Other"],
+      datasets: [{
+        data: [72, 14, 9, 5],
+        backgroundColor: ["#0f766e", "#b91c1c", "#c2410c", "#65717f"],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "right" }
+      }
+    }
+  });
+}

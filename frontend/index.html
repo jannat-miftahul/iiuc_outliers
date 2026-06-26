@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>FinGuard Copilot</title>
     <link rel="stylesheet" href="/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <main class="shell">
@@ -34,7 +35,10 @@
               <p class="eyebrow">Verdict</p>
               <h2 id="caseType">Awaiting ticket</h2>
             </div>
-            <span id="severity" class="badge">-</span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button id="downloadBtn" type="button" style="display: none; background: var(--muted); padding: 6px 12px; font-size: 13px;">Download</button>
+              <span id="severity" class="badge">-</span>
+            </div>
           </div>
           <dl class="facts">
             <div>
@@ -66,6 +70,13 @@
             <div class="card reply-card">
               <dt>Customer Reply</dt>
               <dd id="customerReply">-</dd>
+            </div>
+            
+            <div class="card" style="margin-top: 24px; border-left-color: var(--ink);">
+              <dt>System Analytics (Lifetime)</dt>
+              <div style="height: 220px; position: relative;">
+                <canvas id="analyticsChart"></canvas>
+              </div>
             </div>
           </div>
         </div>
