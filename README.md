@@ -1,4 +1,4 @@
-# QueueStorm Investigator
+# FinGuard-Copilot
 
 Flask service and plain HTML/CSS/JS frontend for the SUST CSE Carnival 2026 preliminary challenge.
 
