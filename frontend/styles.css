@@ -9,6 +9,7 @@
   --primary-dark: #115e59;
   --accent: #c2410c;
   --risk: #b91c1c;
+  --shadow: rgba(23, 32, 42, 0.06);
 }
 
 * {
@@ -45,10 +46,12 @@ textarea {
 .results {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 18px;
+  border-radius: 12px;
+  padding: 24px;
   min-width: 0;
-  box-shadow: 0 10px 28px rgba(23, 32, 42, 0.06);
+  box-shadow: 0 10px 30px var(--shadow);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
 header,
@@ -95,9 +98,16 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--ink);
-  background: #fbfcfd;
+  background: var(--page);
   line-height: 1.5;
   tab-size: 2;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
 }
 
 button {
@@ -108,15 +118,34 @@ button {
   background: var(--primary);
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 button:hover {
   background: var(--primary-dark);
+  transform: translateY(-1px);
 }
 
-#sampleBtn {
-  color: var(--primary-dark);
-  background: #dff5f1;
+button:active {
+  transform: scale(0.97);
+}
+
+.styled-select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.styled-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
 }
 
 #status {
@@ -173,6 +202,11 @@ dd {
   border-radius: 8px;
   border-left: 4px solid var(--primary);
   background: var(--page);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--shadow);
 }
 .card dt {
   margin-bottom: 8px;
@@ -191,7 +225,7 @@ dd {
 }
 .reply-card {
   border-left-color: var(--muted);
-  background: #fdfdfd;
+  background: var(--surface);
   border: 1px solid var(--line);
   font-style: italic;
 }
@@ -226,5 +260,36 @@ dd {
 
   .facts {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .shell {
+    width: 100%;
+    padding: 10px 0;
+  }
+  
+  .editor, 
+  .results {
+    padding: 16px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  
+  h1 {
+    font-size: 24px;
+  }
+  
+  textarea {
+    min-height: 300px;
+  }
+  
+  .card {
+    padding: 12px;
+  }
+  
+  .facts div {
+    min-height: 60px;
   }
 }

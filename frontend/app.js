@@ -1,6 +1,6 @@
 const input = document.querySelector("#ticketInput");
 const analyzeBtn = document.querySelector("#analyzeBtn");
-const sampleBtn = document.querySelector("#sampleBtn");
+const sampleSelect = document.querySelector("#sampleSelect");
 const statusEl = document.querySelector("#status");
 const textualResults = document.querySelector("#textualResults");
 const agentSummary = document.querySelector("#agentSummary");
@@ -13,35 +13,65 @@ const department = document.querySelector("#department");
 const transaction = document.querySelector("#transaction");
 const review = document.querySelector("#review");
 
-const sampleTicket = {
-  ticket_id: "TKT-001",
-  complaint: "I sent 5000 taka to a wrong number around 2pm today. Please help me recover it.",
-  language: "en",
-  channel: "in_app_chat",
-  user_type: "customer",
-  campaign_context: "boishakh_bonanza_day_1",
-  transaction_history: [
-    {
-      transaction_id: "TXN-9101",
-      timestamp: "2026-04-14T14:08:22Z",
-      type: "transfer",
-      amount: 5000,
-      counterparty: "+8801719876543",
-      status: "completed"
-    },
-    {
-      transaction_id: "TXN-9102",
-      timestamp: "2026-04-14T14:31:02Z",
-      type: "payment",
-      amount: 900,
-      counterparty: "MER-2209",
-      status: "completed"
-    }
-  ]
+const samples = {
+  wrong_transfer: {
+    ticket_id: "TKT-001",
+    complaint: "I sent 5000 taka to a wrong number around 2pm today. Please help me recover it.",
+    language: "en",
+    channel: "in_app_chat",
+    user_type: "customer",
+    campaign_context: "boishakh_bonanza_day_1",
+    transaction_history: [
+      {
+        transaction_id: "TXN-9101",
+        timestamp: "2026-04-14T14:08:22Z",
+        type: "transfer",
+        amount: 5000,
+        counterparty: "+8801719876543",
+        status: "completed"
+      }
+    ]
+  },
+  phishing: {
+    ticket_id: "TKT-002",
+    complaint: "Your system keeps declining my payment for the iPhone giveaway. My card PIN is 1234, please fix.",
+    language: "en",
+    channel: "email",
+    user_type: "customer",
+    campaign_context: "",
+    transaction_history: []
+  },
+  duplicate: {
+    ticket_id: "TKT-003",
+    complaint: "I sent money twice by mistake yesterday! I paid 900 tk but it went twice.",
+    language: "en",
+    channel: "in_app_chat",
+    user_type: "customer",
+    campaign_context: "",
+    transaction_history: [
+      {
+        transaction_id: "TXN-9102",
+        timestamp: "2026-06-25T14:31:02Z",
+        type: "payment",
+        amount: 900,
+        counterparty: "MER-2209",
+        status: "completed"
+      },
+      {
+        transaction_id: "TXN-9103",
+        timestamp: "2026-06-25T14:35:00Z",
+        type: "payment",
+        amount: 900,
+        counterparty: "MER-2209",
+        status: "completed"
+      }
+    ]
+  }
 };
 
 function loadSample() {
-  input.value = JSON.stringify(sampleTicket, null, 2);
+  const selected = sampleSelect.value;
+  input.value = JSON.stringify(samples[selected], null, 2);
 }
 
 function renderResult(data) {
@@ -76,6 +106,6 @@ async function analyzeTicket() {
   }
 }
 
-sampleBtn.addEventListener("click", loadSample);
+sampleSelect.addEventListener("change", loadSample);
 analyzeBtn.addEventListener("click", analyzeTicket);
 loadSample();

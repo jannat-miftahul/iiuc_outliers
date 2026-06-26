@@ -15,7 +15,11 @@
               <p class="eyebrow">SupportOps Copilot</p>
               <h1>FinGuard Copilot</h1>
             </div>
-            <button id="sampleBtn" type="button">Load sample</button>
+            <select id="sampleSelect" class="styled-select" aria-label="Load sample ticket">
+              <option value="wrong_transfer">Sample: Wrong Transfer</option>
+              <option value="phishing">Sample: Phishing</option>
+              <option value="duplicate">Sample: Duplicate Payment</option>
+            </select>
           </header>
           <textarea id="ticketInput" spellcheck="false" aria-label="Ticket JSON input"></textarea>
           <div class="actions">
