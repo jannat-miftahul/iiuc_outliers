@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QueueStorm Investigator</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace">
+        <div class="editor">
+          <header>
+            <div>
+              <p class="eyebrow">SupportOps Copilot</p>
+              <h1>QueueStorm Investigator</h1>
+            </div>
+            <button id="sampleBtn" type="button">Load sample</button>
+          </header>
+          <textarea id="ticketInput" spellcheck="false" aria-label="Ticket JSON input"></textarea>
+          <div class="actions">
+            <button id="analyzeBtn" type="button">Analyze ticket</button>
+            <span id="status" role="status"></span>
+          </div>
+        </div>
+
+        <div class="results" aria-live="polite">
+          <div class="result-topline">
+            <div>
+              <p class="eyebrow">Verdict</p>
+              <h2 id="caseType">Awaiting ticket</h2>
+            </div>
+            <span id="severity" class="badge">-</span>
+          </div>
+          <dl class="facts">
+            <div>
+              <dt>Evidence</dt>
+              <dd id="evidence">-</dd>
+            </div>
+            <div>
+              <dt>Department</dt>
+              <dd id="department">-</dd>
+            </div>
+            <div>
+              <dt>Transaction</dt>
+              <dd id="transaction">-</dd>
+            </div>
+            <div>
+              <dt>Human Review</dt>
+              <dd id="review">-</dd>
+            </div>
+          </dl>
+          <pre id="output">{}</pre>
+        </div>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
