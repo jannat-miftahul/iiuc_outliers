@@ -1,7 +1,10 @@
+import logging
 from flask import Flask, jsonify, request, send_from_directory
 
 from analyzer import analyze_ticket, validate_payload
 
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 app = Flask(__name__, static_folder="frontend", static_url_path="")
 
@@ -20,7 +23,8 @@ def analyze():
 
     try:
         return jsonify(analyze_ticket(payload)), 200
-    except Exception:
+    except Exception as e:
+        logging.error(f"Error analyzing ticket: {e}", exc_info=True)
         return jsonify({"error": "Internal analysis error."}), 500
 
 
