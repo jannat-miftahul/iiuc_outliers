@@ -1,0 +1,18 @@
+{
+  "ticket_id": "TKT-001",
+  "relevant_transaction_id": "TXN-9101",
+  "evidence_verdict": "consistent",
+  "case_type": "wrong_transfer",
+  "severity": "high",
+  "department": "dispute_resolution",
+  "agent_summary": "Customer reports a wrong transfer for 5000 BDT. Transaction TXN-9101 was assessed as consistent against the provided history.",
+  "recommended_next_action": "Verify TXN-9101 in the ledger and route to dispute handling; do not promise recovery before approval.",
+  "customer_reply": "We have noted your concern about transaction TXN-9101. Our support team will review the official records and guide you through the approved next steps.",
+  "human_review_required": true,
+  "confidence": 0.97,
+  "reason_codes": [
+    "wrong_transfer",
+    "consistent",
+    "transaction_match"
+  ]
+}
