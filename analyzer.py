@@ -2,6 +2,14 @@ import re
 from datetime import datetime
 from math import isfinite
 
+# Prompt injection patterns that should be stripped / blocked
+_INJECTION_PATTERNS = re.compile(
+    r"(ignore (all |previous |prior )?instructions?|forget (all |previous |prior )?instructions?"
+    r"|new instruction|disregard|system prompt|you are now|act as|pretend (you are|to be)"
+    r"|jailbreak|override|roleplay as)",
+    flags=re.IGNORECASE,
+)
+
 
 CASE_TYPES = {
     "wrong_transfer",
@@ -122,7 +130,9 @@ CASE_KEYWORDS = {
 
 
 def analyze_ticket(payload):
-    complaint = str(payload.get("complaint", "")).strip()
+    # Sanitize complaint to prevent prompt injection before any processing
+    raw_complaint = str(payload.get("complaint", "")).strip()
+    complaint = sanitize_complaint(raw_complaint)
     history = payload.get("transaction_history") or []
     user_type = str(payload.get("user_type", "unknown")).lower()
 
@@ -336,19 +346,36 @@ def make_next_action(case_type, verdict, txn):
 def make_customer_reply(case_type, verdict, txn, complaint):
     txn_ref = f" transaction {txn.get('transaction_id')}" if txn else " your report"
     prefix = f"We have noted your concern about{txn_ref}."
-    
+    safety_note = " For your security, never share your PIN, OTP, password, or card details with anyone, including support agents."
+
     text = normalize(complaint)
     credential_risk = any(has_keyword(text, term) for term in SENSITIVE_TERMS)
-    
+
     if case_type == "phishing_or_social_engineering" or credential_risk:
-        return f"{prefix} Please do not share any PIN, OTP, password, or security code with anyone. Our team will review the report through official support channels."
+        return (
+            f"{prefix} Please do not share any PIN, OTP, password, or security code with anyone, "
+            "including anyone claiming to be a support agent. Our team will review the report "
+            "and contact you only through official support channels."
+        )
     if verdict == "inconsistent":
-        return f"{prefix} The details need further verification, so our support team will review the official records and update you through authorized channels."
+        return (
+            f"{prefix} The details need further verification. Our support team will review the "
+            f"official records and update you through authorized channels.{safety_note}"
+        )
     if verdict == "insufficient_data":
-        return f"{prefix} We need to review the official transaction records before any decision can be made. Please continue only through official support channels."
+        return (
+            f"{prefix} We need to review the official transaction records before any decision "
+            f"can be made. Please continue only through official support channels.{safety_note}"
+        )
     if case_type == "refund_request":
-        return f"{prefix} Our team will check eligibility under the official process, and any eligible amount will be handled through official channels."
-    return f"{prefix} Our support team will review the official records and guide you through the approved next steps."
+        return (
+            f"{prefix} Our team will check eligibility under the official process, and any "
+            f"eligible amount will be returned through official channels.{safety_note}"
+        )
+    return (
+        f"{prefix} Our support team will review the official records and guide you through "
+        f"the approved next steps.{safety_note}"
+    )
 
 
 def build_reason_codes(case_type, verdict, txn, match_score, amount):
@@ -427,6 +454,15 @@ def almost_equal(left, right):
 
 def normalize(value):
     return str(value or "").casefold().strip()
+
+
+def sanitize_complaint(text):
+    """Remove prompt-injection attempts from complaint text.
+
+    The actual complaint content is preserved; only injection trigger
+    phrases are redacted so classifiers still work on genuine words.
+    """
+    return _INJECTION_PATTERNS.sub("[redacted]", text)
 
 
 def has_keyword(text, keyword):
