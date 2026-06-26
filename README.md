@@ -149,8 +149,8 @@ Evidence verdict:
 ## Docker
 
 ```bash
-docker build -t queuestorm-investigator .
-docker run --rm -p 5000:5000 queuestorm-investigator
+docker build -t finguard-copilot .
+docker run --rm -p 5000:5000 finguard-copilot
 ```
 
 ---
