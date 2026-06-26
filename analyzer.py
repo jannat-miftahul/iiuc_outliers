@@ -170,7 +170,7 @@ def analyze_ticket(payload):
         "department": department,
         "agent_summary": make_agent_summary(case_type, evidence_verdict, relevant_txn, amount),
         "recommended_next_action": make_next_action(case_type, evidence_verdict, relevant_txn),
-        "customer_reply": make_customer_reply(case_type, evidence_verdict, relevant_txn),
+        "customer_reply": make_customer_reply(case_type, evidence_verdict, relevant_txn, complaint),
         "human_review_required": human_review_required,
         "confidence": confidence,
         "reason_codes": reason_codes,
@@ -195,7 +195,7 @@ def classify_case(complaint, user_type):
     text = normalize(complaint)
     scores = {}
     for case_type, keywords in CASE_KEYWORDS.items():
-        scores[case_type] = sum(1 for keyword in keywords if keyword in text)
+        scores[case_type] = sum(1 for keyword in keywords if has_keyword(text, keyword))
 
     if user_type == "merchant":
         scores["merchant_settlement_delay"] = scores.get("merchant_settlement_delay", 0) + 1
@@ -292,7 +292,7 @@ def find_duplicate_transactions(history):
 def decide_severity(case_type, verdict, amount, complaint):
     text = normalize(complaint)
     if case_type == "phishing_or_social_engineering":
-        return "critical" if any(term in text for term in SENSITIVE_TERMS) else "high"
+        return "critical" if any(has_keyword(text, term) for term in SENSITIVE_TERMS) else "high"
     if amount >= 50000:
         return "critical"
     if amount >= 10000:
@@ -343,11 +343,15 @@ def make_next_action(case_type, verdict, txn):
     return "Handle through standard customer support workflow and escalate if additional risk indicators appear."
 
 
-def make_customer_reply(case_type, verdict, txn):
+def make_customer_reply(case_type, verdict, txn, complaint):
     txn_ref = f" transaction {txn.get('transaction_id')}" if txn else " your report"
     prefix = f"We have noted your concern about{txn_ref}."
     safety_note = " For your security, never share your PIN, OTP, password, or card details with anyone, including support agents."
-    if case_type == "phishing_or_social_engineering":
+
+    text = normalize(complaint)
+    credential_risk = any(has_keyword(text, term) for term in SENSITIVE_TERMS)
+
+    if case_type == "phishing_or_social_engineering" or credential_risk:
         return (
             f"{prefix} Please do not share any PIN, OTP, password, or security code with anyone, "
             "including anyone claiming to be a support agent. Our team will review the report "
@@ -415,6 +419,11 @@ def transaction_type_matches(case_type, txn_type):
 
 def amount_from_text(text):
     text = text or ""
+    
+    # Map Bangla digits to English
+    bangla_to_english = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
+    text = text.translate(bangla_to_english)
+    
     money_matches = re.findall(
         r"(?<![\w+])(\d{2,7}(?:,\d{3})*(?:\.\d+)?)\s*(?:bdt|tk|taka)",
         text,
@@ -454,6 +463,10 @@ def sanitize_complaint(text):
     phrases are redacted so classifiers still work on genuine words.
     """
     return _INJECTION_PATTERNS.sub("[redacted]", text)
+
+
+def has_keyword(text, keyword):
+    return bool(re.search(rf"\b{re.escape(keyword)}\b", text))
 
 
 def parse_time(value):
