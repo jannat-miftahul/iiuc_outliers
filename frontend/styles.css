@@ -167,17 +167,36 @@ dd {
   font-weight: 700;
 }
 
-pre {
-  min-height: 390px;
-  max-height: 560px;
-  margin: 0;
-  padding: 14px;
-  overflow: auto;
+.card {
+  margin-top: 14px;
+  padding: 16px;
   border-radius: 8px;
-  background: #111827;
-  color: #e5e7eb;
-  line-height: 1.45;
-  white-space: pre-wrap;
+  border-left: 4px solid var(--primary);
+  background: var(--page);
+}
+.card dt {
+  margin-bottom: 8px;
+  color: var(--primary-dark);
+}
+.card dd {
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+}
+.action-card {
+  border-left-color: var(--accent);
+}
+.action-card dt {
+  color: var(--accent);
+}
+.reply-card {
+  border-left-color: var(--muted);
+  background: #fdfdfd;
+  border: 1px solid var(--line);
+  font-style: italic;
+}
+.reply-card dt {
+  color: var(--muted);
 }
 
 .critical {

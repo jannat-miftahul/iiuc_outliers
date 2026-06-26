@@ -4,7 +4,7 @@ from math import isfinite
 
 # Prompt injection patterns that should be stripped / blocked
 _INJECTION_PATTERNS = re.compile(
-    r"(ignore (all |previous |prior )?instructions?|forget (all |previous |prior )?instructions?"
+    r"(ignore(?: all| previous| prior)* instructions?|forget(?: all| previous| prior)* instructions?"
     r"|new instruction|disregard|system prompt|you are now|act as|pretend (you are|to be)"
     r"|jailbreak|override|roleplay as)",
     flags=re.IGNORECASE,
@@ -183,11 +183,19 @@ def validate_payload(payload):
     for field in ("ticket_id", "complaint"):
         if field not in payload:
             return f"Missing required field: {field}.", 400
-    if not str(payload.get("complaint", "")).strip():
+    if not isinstance(payload.get("ticket_id"), str):
+        return "ticket_id must be a string.", 400
+    if not isinstance(payload.get("complaint"), str):
+        return "complaint must be a string.", 400
+    if not payload["complaint"].strip():
         return "Complaint must not be empty.", 422
     history = payload.get("transaction_history", [])
-    if history is not None and not isinstance(history, list):
-        return "transaction_history must be an array when provided.", 400
+    if history is not None:
+        if not isinstance(history, list):
+            return "transaction_history must be an array when provided.", 400
+        for i, txn in enumerate(history):
+            if not isinstance(txn, dict):
+                return f"transaction_history[{i}] must be an object.", 400
     return None, None
 
 
@@ -283,9 +291,17 @@ def find_duplicate_transactions(history):
             normalize(str(txn.get("counterparty", ""))),
             normalize(str(txn.get("status", ""))),
         )
-        if key in seen and key[1] > 0 and key[3] == "completed":
-            return seen[key], txn
-        seen[key] = txn
+        if key[1] > 0 and key[3] == "completed":
+            if key in seen:
+                prev_txn = seen[key]
+                t1 = parse_time(prev_txn.get("timestamp"))
+                t2 = parse_time(txn.get("timestamp"))
+                if t1 and t2:
+                    if abs((t1 - t2).total_seconds()) <= 86400:  # 24 hours
+                        return prev_txn, txn
+                else:
+                    return prev_txn, txn
+            seen[key] = txn
     return None
 
 
